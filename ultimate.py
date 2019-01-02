@@ -1,19 +1,18 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QGridLayout
+from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QGridLayout, QGroupBox
 from PyQt5.QtGui import QPixmap
 from random import randint
-import display_manager
-import custom_group_box as cgb
+import custom_label as cl
 
 WIDTH = 640
 HEIGHT = 480
 
 
-def displayBoard(board, layout, dm):
+def displayBoard(board, layout):
     for x in range(9):
         mini_board = board[x]
         mini_layout = QGridLayout()
-        group_box = cgb.CustomGroupBox(x)
+        group_box = QGroupBox()
         for row in range(3):
             for cell in range(3):
                 some_int = randint(0, 150)
@@ -24,7 +23,7 @@ def displayBoard(board, layout, dm):
                 else:
                     pixmap = QPixmap('./blank.png')
                 pixmap = pixmap.scaledToWidth(50)
-                label = QLabel()
+                label = cl.CustomLabel(x, row, cell)
                 label.setPixmap(pixmap)
                 mini_layout.addWidget(label, row, cell)
         group_box.setLayout(mini_layout)
@@ -59,7 +58,6 @@ def isValidMoveByRules(move, previous_move, current_board):
 
 
 if __name__ == "__main__":
-    dm = display_manager.DisplayManager()
     board = {}
     for x in range(9):
         board[x] = [[0 for y in range(3)] for z in range(3)]
@@ -67,7 +65,7 @@ if __name__ == "__main__":
     app = QApplication([sys.argv])
     window = QWidget()
     layout = QGridLayout()
-    displayBoard(board, layout, dm)
+    displayBoard(board, layout)
     window.resize(WIDTH, HEIGHT)
     window.setLayout(layout)
     window.setWindowTitle("Ultimate Tic Tac Toe")
