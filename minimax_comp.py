@@ -4,7 +4,7 @@ COMP_NO = 5
 
 class MinimaxComp():
     def __init__(self):
-        pass
+        self.infinity = float("inf")
 
     def getPossibleMoves(self, board, previous_move, mini_board_wins):
         if previous_move[1] == -1:
@@ -18,7 +18,7 @@ class MinimaxComp():
 
     def chooseMove(self, board, depth, isMaximising, previous_move, mini_board_wins):
         best_move = None
-        possible_moves = self.getPossibleMoves(board, previous_move)
+        possible_moves = self.getPossibleMoves(board, previous_move, mini_board_wins)
         if self.checkWin(board, COMP_NO):
             return (+10 + depth), best_move
         elif self.checkWin(mini_board_wins, PLAYER_NO):

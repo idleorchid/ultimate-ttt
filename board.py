@@ -2,6 +2,7 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QGroupBox, QMessageBox
 from PyQt5.QtGui import QPixmap
 import custom_label as cl
+import minimax_comp as mc
 
 PLAYER_NO = 3
 COMP_NO = 5
@@ -17,6 +18,7 @@ class BoardManager():
         # previous move dictates that the start move can be in any big cell
         self.previous_move = (0, -1)
         self.player_turn = True
+        self.comp_player = mc.MinimaxComp()
 
     def initBoard(self):
         return [[0 for y in range(9)] for x in range(9)]
@@ -67,26 +69,40 @@ class BoardManager():
                 if (self.isValidMoveByRules((big_cell, mini_cell))):
                     self.previous_move = (big_cell, mini_cell)
                     self.board[big_cell][mini_cell] = PLAYER_NO
+                    self.updateWinStatus(big_cell)
+                    self.player_turn = not self.player_turn
+                    self.displayBoard()
+                    score, comp_move = self.comp_player.chooseMove(
+                        self.board[:], 5, True, self.previous_move, self.mini_board_wins[:])
+                    self.previous_move = comp_move
+                    self.board[comp_move[0]][comp_move[1]] = COMP_NO
+                    self.updateWinStatus(comp_move[0])
                     self.player_turn = not self.player_turn
                     self.displayBoard()
                 else:
                     QMessageBox.about(
                         self.main_window, "Invalid Move", "You cannot make this move.")
-        else:
-            if self.isMoveOnBoard((big_cell, mini_cell)):
-                if (self.isValidMoveByRules((big_cell, mini_cell))):
-                    self.previous_move = (big_cell, mini_cell)
-                    self.board[big_cell][mini_cell] = COMP_NO
-                    self.player_turn = not self.player_turn
-                    self.displayBoard()
-                else:
-                    QMessageBox.about(
-                        self.main_window, "Invalid Move", "You cannot make this move.")
-        self.checkIfWinOnMiniBoard(self.previous_move[0])
+        # else:
+        #     if self.isMoveOnBoard((big_cell, mini_cell)):
+        #         if (self.isValidMoveByRules((big_cell, mini_cell))):
+        #             self.previous_move = (big_cell, mini_cell)
+        #             self.board[big_cell][mini_cell] = COMP_NO
+        #             self.player_turn = not self.player_turn
+        #             self.displayBoard()
+        #         else:
+        #             QMessageBox.about(
+        #                 self.main_window, "Invalid Move", "You cannot make this move.")
+        # self.checkIfWinOnMiniBoard(self.previous_move[0])
+        # if (self.checkIfWinOnMiniBoard(self.previous_move[1])):
+        #     self.previous_move = (self.previous_move[0], -1)
+        #     self.displayBoard()
+        #     print('Win:', self.checkIfWinOnBigBoard())
+
+    def updateWinStatus(self, big_cell):
+        self.checkIfWinOnMiniBoard(big_cell)
+        print(self.mini_board_wins)
         if (self.checkIfWinOnMiniBoard(self.previous_move[1])):
             self.previous_move = (self.previous_move[0], -1)
-            self.displayBoard()
-            print('Win:', self.checkIfWinOnBigBoard())
 
     def isMoveOnBoard(self, move):
         # checks move is actually on the board, but not whether it is valid by rules
@@ -114,8 +130,10 @@ class BoardManager():
         if (self.mini_board_wins[mini_board_num] != 0):
             return True
         else:
+            print('board:', self.board)
             mini_board = self.board[mini_board_num]
             win = 0
+            print('mini board:', mini_board)
             if mini_board[0] != 0:
                 if mini_board[0] == mini_board[4] == mini_board[8]:
                     win = mini_board[0]
@@ -136,6 +154,7 @@ class BoardManager():
                 if mini_board[8] == mini_board[6] == mini_board[7]:
                     win = mini_board[8]
             self.mini_board_wins[mini_board_num] = win
+            print('win:', win)
             return win != 0
 
     def checkIfWinOnBigBoard(self):
