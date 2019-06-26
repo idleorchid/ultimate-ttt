@@ -13,7 +13,6 @@ if __name__ == "__main__":
     bm = b.BoardManager(window, layout)
     bm.displayBoard()
     window.resize(WIDTH, HEIGHT)
-    window.setLayout(layout)
     window.setWindowTitle("Ultimate Tic Tac Toe")
     window.show()
     sys.exit(app.exec_())

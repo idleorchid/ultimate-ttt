@@ -1,42 +1,48 @@
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QGroupBox, QMessageBox
+from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QGroupBox, QMessageBox, QVBoxLayout
 from PyQt5.QtGui import QPixmap
 import custom_label as cl
 import minimax_comp as mc
+import monte_carlo_comp as mcc
+import copy
 
 PLAYER_NO = 3
 COMP_NO = 5
 CELL_WIDTH = 50
 
+# add move history
+# highlight cell that the next move should be played in
+# display the giant pieces slightly transparent to see the board underneath
+
 
 class BoardManager():
     def __init__(self, main_window, main_layout):
         self.main_window = main_window
-        self.main_layout = main_layout
+        self.main_layout = QVBoxLayout()
         self.board = self.initBoard()
-        self.mini_board_wins = [3] * 2 + [0] * 4 + [5] * 2 + [0]
+        self.mini_board_wins = [0] * 9
         # previous move dictates that the start move can be in any big cell
         self.previous_move = (0, -1)
         self.player_turn = True
-        self.comp_player = mc.MinimaxComp()
+        self.comp_player = mcc.MonteCarloComp()
 
     def initBoard(self):
         return [[0 for y in range(9)] for x in range(9)]
 
     def displayBoard(self):
         self.clearLayout()
+        main_grid_layout = QGridLayout()
         for x in range(9):
-            mini_board = self.board[x]
             mini_layout = QGridLayout()
             group_box = QGroupBox()
             if (self.mini_board_wins[x] == 0):
                 for cell in range(9):
                     if (self.board[x][cell] == 3):
-                        pixmap = QPixmap('./X.png')
+                        pixmap = QPixmap('X.png')
                     elif (self.board[x][cell] == 5):
-                        pixmap = QPixmap('./O.png')
+                        pixmap = QPixmap('O.png')
                     else:
-                        pixmap = QPixmap('./blank.png')
+                        pixmap = QPixmap('blank.png')
                     pixmap = pixmap.scaledToWidth(CELL_WIDTH)
                     label = cl.CustomLabel(x, cell, self)
                     label.setPixmap(pixmap)
@@ -55,7 +61,13 @@ class BoardManager():
             group_box.setObjectName('mini-board')
             group_box.setStyleSheet(
                 'QGroupBox#mini-board {border : 5px solid black}')
-            self.main_layout.addWidget(group_box, x // 3, x % 3)
+            main_grid_layout.addWidget(group_box, x // 3, x % 3)
+        last_move_label = QLabel()
+        last_move_label.setText(str(self.previous_move))
+        v_group_box = QGroupBox()
+        v_group_box.setLayout(main_grid_layout)
+        self.main_layout.addWidget(last_move_label)
+        self.main_layout.addWidget(v_group_box)
         self.main_window.setLayout(self.main_layout)
 
     def clearLayout(self):
@@ -72,8 +84,8 @@ class BoardManager():
                     self.updateWinStatus(big_cell)
                     self.player_turn = not self.player_turn
                     self.displayBoard()
-                    score, comp_move = self.comp_player.chooseMove(
-                        self.board[:], 5, True, self.previous_move, self.mini_board_wins[:])
+                    comp_move = self.comp_player.monteCarlo(copy.deepcopy(self.board), self.previous_move, copy.deepcopy(self.mini_board_wins))
+                    # score, comp_move = self.comp_player.chooseMove(self.board[:], 5, True, self.previous_move, self.mini_board_wins[:])
                     self.previous_move = comp_move
                     self.board[comp_move[0]][comp_move[1]] = COMP_NO
                     self.updateWinStatus(comp_move[0])
@@ -183,7 +195,6 @@ class BoardManager():
     def getBoard(self):
         return self.board
 
-
-if __name__ == '__main__':
-    board = Board()
-    print(board.board)
+# if __name__ == '__main__':
+#     board = Board()
+#     print(board.board)
