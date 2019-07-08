@@ -1,12 +1,11 @@
 import math
 import random
 import copy
+import sys
 # https://en.wikipedia.org/wiki/Ultimate_tic-tac-toe#Computer_implementations
 # https://en.wikipedia.org/wiki/Monte_Carlo_tree_search
 # https://www.baeldung.com/java-monte-carlo-tree-search
 # https://en.wikipedia.org/wiki/Monte_Carlo_method#Artificial_intelligence_for_games
-
-# cloning methods for Node and State
 
 class MonteCarloComp():
     def __init__(self):
@@ -64,7 +63,7 @@ class MonteCarloComp():
         if hasGameFinished:
             board_win = sim_state.getOpponentNo()
         if board_win == sim_state.getOpponentNo():
-            sim_node.parent.state.win_score = -sim_node.infinity
+            sim_node.parent.state.win_score = sim_node.min_val
             return sim_state.getOpponentNo()
         
         while board_win == 0:
@@ -138,7 +137,8 @@ class MonteCarloComp():
 
 class Node():
     def __init__(self, parent, is_comp, board=[], mini_board_wins=[], move=(-1, -1)):
-        self.infinity = float("inf")
+        self.infinity = float('inf')
+        self.min_val = -sys.maxsize -1
         self.parent = parent
         self.children = []
         self.state = State(is_comp)
