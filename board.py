@@ -25,6 +25,18 @@ class BoardManager():
         self.previous_move = (0, -1)
         self.player_turn = True
         self.comp_player = mcc.MonteCarloComp()
+        self.grid_dict = {
+            0 : "top left",
+            1 : "top middle",
+            2 : "top right",
+            3 : "middle Left",
+            4 : "centre",
+            5 : "middle right",
+            6 : "bottom left",
+            7 : "bottom middle",
+            8 : "bottom right",
+        }
+        self.just_finished_grid = -1
 
     def initBoard(self):
         return [[0 for y in range(9)] for x in range(9)]
@@ -63,7 +75,17 @@ class BoardManager():
                 'QGroupBox#mini-board {border : 5px solid black}')
             main_grid_layout.addWidget(group_box, x // 3, x % 3)
         last_move_label = QLabel()
-        last_move_label.setText(str(self.previous_move))
+        last_move_string = 'Last move: ' + self.grid_dict[self.previous_move[0]] + ' of '
+        if self.previous_move[1] < 0:
+            if self.just_finished_grid < 0:
+                last_move_string = 'No previous move - play anywhere.'
+            else:
+                last_move_string += self.grid_dict[self.just_finished_grid] + ' (play anywhere)'
+        else:
+            last_move_string += '<u>' + self.grid_dict[self.previous_move[1]] + '</u>'
+        last_move_label.setText(last_move_string)
+        last_move_label.setStyleSheet('color: white; font-size:15px;')
+        last_move_label.setAlignment(QtCore.Qt.AlignCenter)
         v_group_box = QGroupBox()
         v_group_box.setLayout(main_grid_layout)
         self.main_layout.addWidget(last_move_label)
@@ -114,6 +136,7 @@ class BoardManager():
         self.checkIfWinOnMiniBoard(big_cell)
         print(self.mini_board_wins)
         if (self.checkIfWinOnMiniBoard(self.previous_move[1])):
+            self.just_finished_grid = self.previous_move[1]
             self.previous_move = (self.previous_move[0], -1)
 
     def isMoveOnBoard(self, move):
