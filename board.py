@@ -29,7 +29,7 @@ class BoardManager():
             0 : "top left",
             1 : "top middle",
             2 : "top right",
-            3 : "middle Left",
+            3 : "middle left",
             4 : "centre",
             5 : "middle right",
             6 : "bottom left",
@@ -75,14 +75,14 @@ class BoardManager():
                 'QGroupBox#mini-board {border : 5px solid black}')
             main_grid_layout.addWidget(group_box, x // 3, x % 3)
         last_move_label = QLabel()
-        last_move_string = 'Last move: ' + self.grid_dict[self.previous_move[0]] + ' of '
+        last_move_string = ''
         if self.previous_move[1] < 0:
             if self.just_finished_grid < 0:
                 last_move_string = 'No previous move - play anywhere.'
             else:
-                last_move_string += self.grid_dict[self.just_finished_grid] + ' (play anywhere)'
+                last_move_string = 'Last move: ' + self.grid_dict[self.just_finished_grid] + ' (play anywhere)'
         else:
-            last_move_string += '<u>' + self.grid_dict[self.previous_move[1]] + '</u>'
+            last_move_string = 'Last move: ' + '<u>' + self.grid_dict[self.previous_move[1]] + '</u>' + ' of ' + self.grid_dict[self.previous_move[0]]
         last_move_label.setText(last_move_string)
         last_move_label.setStyleSheet('color: white; font-size:15px;')
         last_move_label.setAlignment(QtCore.Qt.AlignCenter)
